@@ -19,101 +19,95 @@ defmodule DemoLive do
   @impl Phoenix.LiveView
   def render(assigns) do
     ~H"""
-    <.simple_line_graph simple_graph={@simple_graph} clicked_point={@clicked_point} />
+    <.simple_line_graph {@graph} />
     """
   end
 
-  @impl Phoenix.LiveView
-  def handle_event(
-        "toggle_tooltip",
-        %{"id" => point_id, "dataset_id" => dataset_id, "x_pixel" => x_pixel, "y_pixel" => y_pixel},
-        socket
-      ) do
-    {:noreply,
-     assign(socket,
-       clicked_point: %{
-         id: point_id,
-         dataset_id: String.to_existing_atom(dataset_id),
-         x_pixel: x_pixel,
-         y_pixel: y_pixel
-       }
-     )}
-  end
-
-  def handle_event("toggle_tooltip", _params, socket), do: {:noreply, assign(socket, clicked_point: nil)}
-
   defp mount_simple_line_graph(socket) do
-    simple_data = [
-      %{date: ~D[2023-08-01], value: 45.0},
-      %{date: ~D[2023-08-02], value: 40.0},
-      %{date: ~D[2023-08-03], value: 35.0},
-      %{date: ~D[2023-08-04], value: 60.0},
-      %{date: ~D[2023-08-04], value: 10.0},
-      %{date: ~D[2023-08-05], value: 15.0},
-      %{date: ~D[2023-08-06], value: 25.0},
-      %{date: ~D[2023-08-07], value: 20.0},
-      %{date: ~D[2023-08-08], value: 10.0}
-    ]
+    data =
+      [
+        %{date: ~D[2023-08-01], value: 35.0, intensity: 10, temperature: :cold},
+        %{date: ~D[2023-08-02], value: 60.0, intensity: 20, temperature: :cold},
+        %{date: ~D[2023-08-03], value: 65.0, intensity: 25, temperature: :normal},
+        %{date: ~D[2023-08-04], value: 10.0, intensity: 45, temperature: :warm},
+        %{date: ~D[2023-08-05], value: 50.0, intensity: 15, temperature: :warm}
+      ]
 
-    date_scale = date_scale(Date.range(~D[2023-08-01], ~D[2023-08-08]))
-    number_scale = number_scale(0.0, 80.0)
+    dimensions = Plox.Dimensions.new(670, 250)
+
+    x_axis =
+      Plox.XAxis.new(Plox.DateScale.new(Date.range(~D[2023-08-01], ~D[2023-08-05])), dimensions)
+
+    y_axis = Plox.YAxis.new(Plox.NumberScale.new(0.0, 80.0), dimensions)
+    radius_axis = Plox.LinearAxis.new(Plox.NumberScale.new(10, 45), min: 4, max: 10)
+
+    color_axis =
+      Plox.ColorAxis.new(Plox.FixedColorsScale.new(%{cold: "#1E88E5", normal: "#43A047", warm: "#FFC107"}))
 
     dataset =
-      dataset(simple_data,
-        x: {date_scale, & &1.date},
-        y: {number_scale, & &1.value}
+      Plox.Dataset.new(data,
+        x: {x_axis, & &1.date},
+        y: {y_axis, & &1.value},
+        radius: {radius_axis, & &1.intensity},
+        color: {color_axis, & &1.temperature}
       )
 
     assign(socket,
-      simple_graph:
-        to_graph(
-          scales: [date_scale: date_scale, number_scale: number_scale],
-          datasets: [dataset: dataset]
-        ),
-      clicked_point: nil
+      graph: %{
+        x_axis: x_axis,
+        y_axis: y_axis,
+        dataset: dataset,
+        dimensions: dimensions
+      }
     )
   end
 
   defp simple_line_graph(assigns) do
     ~H"""
-    <h2>Simple line graph with legend and tooltips</h2>
+    <h2>Example graph</h2>
 
-    <.graph :let={graph} id="simple_graph" for={@simple_graph} width="800" height="250">
-      <:legend>
-        <.legend_item color="orange" label="data" />
-        <.legend_item color="green" label="more data" />
-      </:legend>
-
-      <:tooltips :let={graph}>
-        <.tooltip
-          :let={%{value: value, date: date}}
-          :if={!is_nil(@clicked_point)}
-          dataset={graph[@clicked_point.dataset_id]}
-          point_id={@clicked_point.id}
-          x_pixel={@clicked_point.x_pixel}
-          y_pixel={@clicked_point.y_pixel}
-          phx-click-away="toggle_tooltip"
-        >
-          <p>date: {date}</p>
-          <p>value: {value}</p>
-        </.tooltip>
-      </:tooltips>
-
-      <.x_axis :let={date} scale={graph[:date_scale]}>
+    <.graph dimensions={@dimensions}>
+      <.x_axis_labels :let={date} axis={@x_axis} class="text-sm">
         {Calendar.strftime(date, "%-m/%-d")}
-      </.x_axis>
+      </.x_axis_labels>
 
-      <.y_axis :let={value} scale={graph[:number_scale]} ticks={5}>
+      <%!-- this wraps text... why does it take in `axis`?? if we want to follow the SVG, we need to pass in `x` --%>
+      <.x_axis_label
+        axis={@x_axis}
+        value={~D[2023-08-02]}
+        position={:top}
+        class="text-sm fill-red-600 dark:fill-red-500"
+      >
+        {"Important Day"}
+      </.x_axis_label>
+
+      <.x_axis_grid_lines axis={@x_axis} stroke="grey" />
+
+      <.y_axis_labels :let={value} axis={@y_axis} ticks={5} class="text-sm">
         {value}
-      </.y_axis>
+      </.y_axis_labels>
 
-      <.line_plot dataset={graph[:dataset]} />
+      <.y_axis_grid_lines axis={@y_axis} ticks={5} stroke="grey" />
 
-      <.points_plot dataset={graph[:dataset]} phx-click="toggle_tooltip" />
+      <.line_plot dataset={@dataset} stroke="orange" stroke-width={2} />
 
-      <.marker at={~D[2023-08-03]} scale={graph[:date_scale]}>
-        Important date!
-      </.marker>
+      <%!-- Access behavior with axes --%>
+      <%!-- <.polyline points={{@dataset[:x], @dataset[:y]}} class="stroke-orange-500 dark:stroke-orange-400 stroke-2" /> --%>
+      <%!-- constant y = 40 --%>
+      <%!-- <.polyline points={{@dataset[:x], @dataset[:y][40]}} class="stroke-orange-500 dark:stroke-orange-400 stroke-2" /> --%>
+      <%!-- <.circles dataset={@dataset} cx={:x} cy={:y} fill={:color} r={:radius} /> --%>
+      <%!-- use the Access behavior --%>
+      <.circle
+        cx={@dataset[:x]}
+        cy={@dataset[:y]}
+        stroke={@dataset[:color]}
+        fill="none"
+        stroke-width="2px"
+        r={@dataset[:radius]}
+      />
+
+      <%!-- pass in constant y-axis and color value --%>
+      <.circle cx={@dataset[:x]} cy={@dataset[:y][40]} fill="red" r={@dataset[:radius]} />
     </.graph>
     """
   end

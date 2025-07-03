@@ -8,14 +8,14 @@ defmodule Plox do
   alias Phoenix.LiveView.JS
   alias Plox.Axis
   alias Plox.Dataset
-  alias Plox.DateScale
-  alias Plox.DateTimeScale
+  # alias Plox.DateScale
+  # alias Plox.DateTimeScale
   alias Plox.Dimensions
-  alias Plox.FixedColorsScale
-  alias Plox.FixedValuesScale
+  # alias Plox.FixedColorsScale
+  # alias Plox.FixedValuesScale
   alias Plox.GraphDataset
   alias Plox.GraphScale
-  alias Plox.NumberScale
+  # alias Plox.NumberScale
   alias Plox.Scale
   alias Plox.XAxis
   alias Plox.YAxis
