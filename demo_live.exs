@@ -80,15 +80,16 @@ defmodule DemoLive do
         {"Important Day"}
       </.x_axis_label>
 
-      <.x_axis_grid_lines axis={@x_axis} stroke="grey" />
+      <.x_axis_grid_lines axis={@x_axis} stroke="#D3D3D3" />
 
       <.y_axis_labels :let={value} axis={@y_axis} ticks={5}>
         {value}
       </.y_axis_labels>
 
-      <.y_axis_grid_lines axis={@y_axis} ticks={5} stroke="grey" />
+      <.y_axis_grid_lines axis={@y_axis} ticks={5} stroke="#D3D3D3" />
 
-      <.line_plot dataset={@dataset} stroke="orange" stroke-width={2} />
+      <%!-- <.polyline dataset={@dataset} stroke="orange" stroke-width={2} /> --%>
+      <.polyline points={Enum.zip(@dataset[:x], @dataset[:y])} stroke="orange" stroke-width={2} />
 
       <%!-- Access behavior with axes --%>
       <%!-- <.polyline points={{@dataset[:x], @dataset[:y]}} class="stroke-orange-500 dark:stroke-orange-400 stroke-2" /> --%>
@@ -207,20 +208,23 @@ defmodule DemoLive do
         {value}
       </.y_axis_labels>
 
-      <.x_axis_grid_lines axis={@x_axis} stroke="grey" />
+      <.x_axis_grid_lines axis={@x_axis} stroke="#D3D3D3" />
 
-      <.y_axis_grid_lines axis={@y_axis} ticks={7} stroke="grey" />
+      <.y_axis_grid_lines axis={@y_axis} ticks={7} stroke="#D3D3D3" />
 
-      <.line_plot dataset={@p_dataset} stroke-width="5" stroke="#FF9330" />
-      <%!-- <.circles dataset={@p_dataset} r="8" fill="#FF9330" /> --%>
-      <.line_plot dataset={@l_dataset} stroke-width="5" stroke="#78C348" />
-      <%!-- <.circles dataset={@l_dataset} r="8" fill="#78C348" /> --%>
-      <.line_plot dataset={@o_dataset} stroke-width="5" stroke="#71AEFF" />
-      <%!-- <.circles dataset={@o_dataset} r="8" fill="#71AEFF" /> --%>
-      <.line_plot dataset={@x1_dataset} stroke-width="5" stroke="#FF7167" />
-      <%!-- <.circles dataset={@x1_dataset} r="8" fill="#FF7167" /> --%>
-      <.line_plot dataset={@x2_dataset} stroke-width="5" stroke="#FF7167" />
-      <%!-- <.circles dataset={@x2_dataset} r="8" fill="#FF7167" /> --%>
+      <.polyline points={Enum.zip(@p_dataset[:x], @p_dataset[:y])} stroke-width="5" stroke="#FF9330" />
+      <.polyline points={Enum.zip(@l_dataset[:x], @l_dataset[:y])} stroke-width="5" stroke="#78C348" />
+      <.polyline points={Enum.zip(@o_dataset[:x], @o_dataset[:y])} stroke-width="5" stroke="#71AEFF" />
+      <.polyline
+        points={Enum.zip(@x1_dataset[:x], @x1_dataset[:y])}
+        stroke-width="5"
+        stroke="#FF7167"
+      />
+      <.polyline
+        points={Enum.zip(@x2_dataset[:x], @x2_dataset[:y])}
+        stroke-width="5"
+        stroke="#FF7167"
+      />
     </.graph>
     """
   end

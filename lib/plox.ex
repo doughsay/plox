@@ -306,23 +306,27 @@ defmodule Plox do
   """
   @doc type: :component
 
-  attr :dataset, Dataset, required: true
-
-  attr :x, :atom, default: :x, doc: "The dataset axis key to use for x values"
-  attr :y, :atom, default: :y, doc: "The dataset axis key to use for y values"
+  attr :points, :any, required: true, doc: "String of coordinates or list of {x, y} tuples"
   attr :fill, :any, default: "none"
   attr :rest, :global, include: @svg_presentation_globals
 
-  def line_plot(assigns) do
-    ~H"""
-    <polyline points={line_points(@dataset, @x, @y)} fill={@fill} {@rest} />
-    """
+  def polyline(%{points: points} = assigns) when is_binary(points), do: do_polyline(assigns)
+
+  def polyline(assigns) do
+    points =
+      assigns.points
+      |> Enum.map(fn {x, y} -> %{x: x, y: y} end)
+      |> polyline_points()
+
+    assigns
+    |> assign(points: points)
+    |> do_polyline()
   end
 
-  defp line_points(dataset, x_key, y_key) do
-    dataset.data
-    |> Enum.map(fn data_point -> %{x: data_point.graph[x_key], y: data_point.graph[y_key]} end)
-    |> polyline_points()
+  defp do_polyline(assigns) do
+    ~H"""
+    <polyline points={@points} fill={@fill} {@rest} />
+    """
   end
 
   @doc """
@@ -337,7 +341,7 @@ defmodule Plox do
   attr :fill, :any, default: "none"
   attr :rest, :global, include: @svg_presentation_globals
 
-  def step_line_plot(assigns) do
+  def step_polyline(assigns) do
     ~H"""
     <polyline points={step_line_points(@dataset, @x, @y)} fill={@fill} {@rest} />
     """
