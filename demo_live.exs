@@ -1,5 +1,5 @@
 Mix.install([
-  {:phoenix_playground, "~> 0.1.6"},
+  {:phoenix_playground, "~> 0.1.7"},
   {:plox, path: "."}
 ])
 
@@ -76,7 +76,7 @@ defmodule DemoLive do
       </.x_axis_labels>
 
       <%!-- this wraps text... why does it take in `axis`?? if we want to follow the SVG, we need to pass in `x` --%>
-      <.x_axis_label axis={@x_axis} value={~D[2023-08-02]} position={:top} fill="red">
+      <.x_axis_label axis={@x_axis} value={~D[2023-08-02]} position={:top} color="red">
         {"Important Day"}
       </.x_axis_label>
 

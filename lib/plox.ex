@@ -37,19 +37,8 @@ defmodule Plox do
   slot :inner_block, required: true
 
   def graph(assigns) do
-    # assigns =
-    #   assign(assigns,
-    #     for: nil,
-    #     graph: Graph.put_dimensions(assigns.for, Dimensions.new(assigns))
-    #   )
-
     ~H"""
     <div {@rest}>
-      <%!-- <div style={"display: flex; flex-direction: column; align-items: flex-end; max-width: #{@graph.width - @graph.margin.right}px"}>
-        <.legend :for={legend <- @legend}>
-          {render_slot(legend)}
-        </.legend>
-      </div> --%>
       <div style={"position: relative; width: #{@dimensions.width}px; height: #{@dimensions.height}px"}>
         <svg
           viewBox={"0 0 #{@dimensions.width} #{@dimensions.height}"}
@@ -57,9 +46,6 @@ defmodule Plox do
         >
           {render_slot(@inner_block)}
         </svg>
-        <%!-- <%= for tooltip <- @tooltips do %>
-          {render_slot(tooltip)}
-        <% end %> --%>
       </div>
     </div>
     """
