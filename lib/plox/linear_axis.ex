@@ -20,7 +20,7 @@ defmodule Plox.LinearAxis do
 
   def values(%__MODULE__{scale: scale}, opts \\ %{}), do: Scale.values(scale, opts)
 
-  defimpl Plox.Axis.Proto do
+  defimpl Plox.Axis.Protocol do
     def to_graph(%{scale: scale, min: min, max: max}, value) do
       Scale.convert_to_range(scale, value, min..max)
     end

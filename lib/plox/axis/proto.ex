@@ -1,4 +1,4 @@
-defprotocol Plox.Axis.Proto do
+defprotocol Plox.Axis.Protocol do
   @moduledoc """
   A protocol for graph axes.
 
