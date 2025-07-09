@@ -398,7 +398,7 @@ defmodule Plox do
     |> Enum.uniq()
     |> case do
       [] -> :none
-      [dataset] -> dataset
+      [_dataset] -> :ok
       _ -> raise "all dynamic values must be from the same dataset"
     end
   end
@@ -412,7 +412,7 @@ defmodule Plox do
       :none ->
         [List.to_tuple(data)]
 
-      _dataset ->
+      :ok ->
         enumerables =
           data
           |> Enum.map(fn
